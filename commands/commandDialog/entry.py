@@ -81,7 +81,7 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
     # TODO Define the dialog for your command by adding different inputs to the command.
 
     # Create a simple text box input.
-    inputs.addTextBoxCommandInput('text_box', 'Some Text', 'Enter some text.', 1, False)
+    inputs.addTextBoxCommandInput('text_box', 'Some Text With Pasta in Belly', 'Enter some text.', 1, False)
 
     # Create a value input field and set the default using 1 unit of the default length unit.
     defaultLengthUnits = app.activeProduct.unitsManager.defaultLengthUnits
