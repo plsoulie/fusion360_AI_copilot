@@ -80,13 +80,21 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
 
     # TODO Define the dialog for your command by adding different inputs to the command.
 
-    # Create a simple text box input.
-    inputs.addTextBoxCommandInput('text_box', 'Some Text', 'Enter some text.', 1, False)
+    # Create a large multi-line text box input for entering Python code.
+    default_code = """# Create a new sketch on the xy plane.
+sketches = rootComp.sketches
+xyPlane = rootComp.xYConstructionPlane
+sketch = sketches.add(xyPlane)
 
-    # Create a value input field and set the default using 1 unit of the default length unit.
-    defaultLengthUnits = app.activeProduct.unitsManager.defaultLengthUnits
-    default_value = adsk.core.ValueInput.createByString('1')
-    inputs.addValueInput('value_input', 'Some Value', defaultLengthUnits, default_value)
+# Draw some circles.
+circles = sketch.sketchCurves.sketchCircles
+circle1 = circles.addByCenterRadius(adsk.core.Point3D.create(0, 0, 0), 2)
+circle2 = circles.addByCenterRadius(adsk.core.Point3D.create(8, 3, 0), 3)
+
+# Add a circle at the center of one of the existing circles.
+circle3 = circles.addByCenterRadius(circle2.centerSketchPoint, 4)
+"""
+    inputs.addTextBoxCommandInput('text_box', 'Python Code', default_code, 15, False)
 
     # TODO Connect to the events that are needed by this command.
     futil.add_handler(args.command.execute, command_execute, local_handlers=local_handlers)
@@ -101,19 +109,15 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
 def command_execute(args: adsk.core.CommandEventArgs):
     # General logging for debug.
     futil.log(f'{CMD_NAME} Command Execute Event')
-
-    # TODO ******************************** Your code here ********************************
-
-    # Get a reference to your command's inputs.
+    
+    # Get the python code from the text box input.
     inputs = args.command.commandInputs
     text_box: adsk.core.TextBoxCommandInput = inputs.itemById('text_box')
-    value_input: adsk.core.ValueCommandInput = inputs.itemById('value_input')
-
-    # Do something interesting
-    text = text_box.text
-    expression = value_input.expression
-    msg = f'Your text: {text}<br>Your value: {expression}'
-    ui.messageBox(msg)
+    code = text_box.text
+    
+    # Execute the python code using the python executor.
+    from ...executors import python_executor
+    python_executor.execute_python_code(code)
 
 
 # This event handler is called when the command needs to compute a new preview in the graphics window.
@@ -138,16 +142,8 @@ def command_input_changed(args: adsk.core.InputChangedEventArgs):
 def command_validate_input(args: adsk.core.ValidateInputsEventArgs):
     # General logging for debug.
     futil.log(f'{CMD_NAME} Validate Input Event')
+    args.areInputsValid = True
 
-    inputs = args.inputs
-    
-    # Verify the validity of the input values. This controls if the OK button is enabled or not.
-    valueInput = inputs.itemById('value_input')
-    if valueInput.value >= 0:
-        args.areInputsValid = True
-    else:
-        args.areInputsValid = False
-        
 
 # This event handler is called when the command terminates.
 def command_destroy(args: adsk.core.CommandEventArgs):
