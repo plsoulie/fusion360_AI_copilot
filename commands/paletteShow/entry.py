@@ -18,12 +18,8 @@ IS_PROMOTED = False
 # Using "global" variables by referencing values from /config.py
 PALETTE_ID = config.sample_palette_id
 
-# Specify the full path to the local html. You can also use a web URL
-# such as 'https://www.autodesk.com/'
-PALETTE_URL = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', 'html', 'index.html')
-
-# The path function builds a valid OS path. This fixes it to be a valid local URL.
-PALETTE_URL = PALETTE_URL.replace('\\', '/')
+# Point to local development server
+PALETTE_URL = 'http://localhost:8000'
 
 # Set a default docking behavior for the palette
 PALETTE_DOCKING = adsk.core.PaletteDockingStates.PaletteDockStateRight
